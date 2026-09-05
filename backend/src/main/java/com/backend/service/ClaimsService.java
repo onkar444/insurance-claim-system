@@ -1,7 +1,11 @@
 package com.backend.service;
 
+import com.backend.repository.exception.ClaimNotFoundException;
 import com.backend.model.Claim;
+import com.backend.model.dto.ClaimRequestDTO;
+import com.backend.model.dto.ClaimResponseDTO;
 import com.backend.repository.ClaimRepositroy;
+import com.backend.utility.MapperUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,31 +19,33 @@ public class ClaimsService {
     }
 
 
-    public Claim save(Claim claim) {
-        return claimsRepository.save(claim);
+    public ClaimResponseDTO save(ClaimRequestDTO claim) {
+        var savedClaim =  claimsRepository.save(MapperUtils.mapClaimRequestDTOtoEntity(claim));
+        return MapperUtils.mapClaimEntityToResponseDTO(savedClaim);
     }
 
-    public Claim findById(Integer id) {
-        return claimsRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Cannot find policy with Id::" + id));
+    public ClaimResponseDTO findById(Integer id) {
+        var claim = claimsRepository.findById(id).
+                orElseThrow(() -> new ClaimNotFoundException("Cannot find policy with Id::" + id));
+
+        return MapperUtils.mapClaimEntityToResponseDTO(claim);
     }
 
-    public List<Claim> getAllClaims() {
-        return claimsRepository.findAll();
+    public List<ClaimResponseDTO> getAllClaims() {
+        return claimsRepository.findAll().stream()
+                .map(MapperUtils::mapClaimEntityToResponseDTO)
+                .toList();
     }
 
-    public Claim updateClaim(Claim claim, Integer id) {
-        Claim existingClaim = claimsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Claim not found with Id::" + id));
+    public ClaimResponseDTO updateClaim(ClaimRequestDTO claim, Integer id) {
+        var existingClaim = claimsRepository.findById(id)
+                .orElseThrow(() -> new ClaimNotFoundException("Claim not found with Id::" + id));
 
-        existingClaim.setAmount(claim.getAmount());
-        existingClaim.setCreatedAt(claim.getCreatedAt());
-        existingClaim.setDescription(claim.getDescription());
-        existingClaim.setPolicy(claim.getPolicy());
-        existingClaim.setUser(claim.getUser());
-        existingClaim.setStatus(claim.getStatus());
+        existingClaim.setAmount(claim.amount());
+        existingClaim.setDescription(claim.description());
 
-        return claimsRepository.save(existingClaim);
+        var savedClaim = claimsRepository.save(existingClaim);
+        return MapperUtils.mapClaimEntityToResponseDTO(savedClaim);
     }
 
     public String deleteById(Integer id) {

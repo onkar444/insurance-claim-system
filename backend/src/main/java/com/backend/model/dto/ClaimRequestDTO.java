@@ -1,4 +1,10 @@
 package com.backend.model.dto;
 
-public record ClaimRequestDTO() {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+
+public record ClaimRequestDTO(
+        @NotBlank String description,
+        @Positive Double amount
+) {
 }

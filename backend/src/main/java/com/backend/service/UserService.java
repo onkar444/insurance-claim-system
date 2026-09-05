@@ -1,7 +1,12 @@
 package com.backend.service;
 
 import com.backend.model.User;
+import com.backend.model.dto.UserRequestDTO;
+import com.backend.model.dto.UserResponseDTO;
 import com.backend.repository.UserRepository;
+import com.backend.repository.exception.UserNotFoundException;
+import com.backend.utility.MapperUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,30 +15,35 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
 
+    @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(MapperUtils::mapUserEntityToResponseDTO)
+                .toList();
     }
 
-    public User saveUser(User user) {
-        return userRepository.save(user);
+    public UserResponseDTO saveUser(UserRequestDTO userRequestDTO) {
+        var user = userRepository.save(MapperUtils.mapUserRequestDTOtoEntity(userRequestDTO));
+        return MapperUtils.mapUserEntityToResponseDTO(user);
     }
 
-    public User updateUser(User user, Integer id) {
+    public UserResponseDTO updateUser(UserRequestDTO userRequestDTO, Integer id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with Id::" + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with Id::" + id));
 
-        existingUser.setClaims(user.getClaims());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setName(user.getName());
-        existingUser.setPassword(user.getPassword());
-        existingUser.setPolicies(user.getPolicies());
-        existingUser.setRole(user.getRole());
+        existingUser.setRole(userRequestDTO.role());
+        existingUser.setPassword(userRequestDTO.password());
+        existingUser.setName(userRequestDTO.name());
+        existingUser.setEmail(userRequestDTO.email());
 
-        return userRepository.save(existingUser);
+        userRepository.save(existingUser);
+
+        return MapperUtils.mapUserEntityToResponseDTO(existingUser);
     }
 
     public String deleteById(Integer id) {
@@ -41,8 +51,10 @@ public class UserService {
         return "User deleted successfully";
     }
 
-    public User getById(Integer id) {
-        return userRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Policy not found with id:"+id));
+    public UserResponseDTO getById(Integer id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with Id::" + id));
+
+        return MapperUtils.mapUserEntityToResponseDTO(existingUser);
     }
 }

@@ -1,7 +1,10 @@
 package com.backend.controller;
 
 import com.backend.model.User;
+import com.backend.model.dto.UserRequestDTO;
+import com.backend.model.dto.UserResponseDTO;
 import com.backend.service.UserService;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,17 +20,22 @@ public class UserController {
     }
 
     @GetMapping("/user/all")
-    public ResponseEntity<List<User>> getAllUsers(){
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers(){
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<UserResponseDTO> getUserId(@PathVariable Integer id){
+        return ResponseEntity.ok(userService.getById(id));
+    }
+
     @PostMapping("/user/save")
-    public ResponseEntity<User> saveUser(@RequestBody User user){
-        return ResponseEntity.ok(userService.saveUser(user));
+    public ResponseEntity<UserResponseDTO> saveUser(@RequestBody UserRequestDTO userRequestDTO){
+        return ResponseEntity.ok(userService.saveUser(userRequestDTO));
     }
 
     @PostMapping("/user/update/{id}")
-    public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable Integer id){
+    public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserRequestDTO user, @PathVariable Integer id){
         return ResponseEntity.ok(userService.updateUser(user,id));
     }
 

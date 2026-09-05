@@ -1,4 +1,13 @@
 package com.backend.model.dto;
 
-public record PolicyResponseDTO() {
-}
+import java.time.LocalDate;
+
+public record PolicyResponseDTO(
+        Integer id,
+        String policyType,
+        Double premium,
+        Double coverageAmount,
+        LocalDate startDate,
+        LocalDate endDate,
+        String status
+) {}
