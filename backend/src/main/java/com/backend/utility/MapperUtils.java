@@ -5,6 +5,9 @@ import com.backend.model.Policy;
 import com.backend.model.User;
 import com.backend.model.dto.*;
 
+import java.time.LocalDate;
+import java.util.Objects;
+
 public class MapperUtils {
 
     public static UserResponseDTO mapUserEntityToResponseDTO(User user) {
@@ -28,7 +31,8 @@ public class MapperUtils {
                 policy.getPremium(),
                 policy.getStartDate(),
                 policy.getEndDate(),
-                policy.getStatus()
+                policy.getStatus(),
+                (Objects.isNull(policy.getUser()) ? null : policy.getUser().getId())
         );
     }
 
@@ -39,6 +43,7 @@ public class MapperUtils {
                 .startDate(policy.startDate())
                 .endDate(policy.endDate())
                 .premium(policy.premium())
+                .status("ACTIVE")
                 .build();
     }
 
@@ -46,11 +51,16 @@ public class MapperUtils {
         return Claim.builder()
                 .amount(claim.amount())
                 .description(claim.description())
+                .createdAt(LocalDate.now())
+                .updatedAt(LocalDate.now())
+                .status(claim.status())
                 .build();
     }
 
     public static ClaimResponseDTO mapClaimEntityToResponseDTO(Claim savedClaim) {
         return new ClaimResponseDTO(savedClaim.getId(),
+                savedClaim.getUser().getId(),
+                savedClaim.getPolicy().getId(),
                 savedClaim.getDescription(),
                 savedClaim.getAmount(),
                 savedClaim.getStatus(),

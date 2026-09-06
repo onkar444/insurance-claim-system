@@ -1,8 +1,12 @@
 package com.backend.service;
 
 import com.backend.model.Claim;
+import com.backend.model.Policy;
+import com.backend.model.User;
 import com.backend.model.dto.ClaimRequestDTO;
 import com.backend.repository.ClaimRepositroy;
+import com.backend.repository.PolicyRepository;
+import com.backend.repository.UserRepository;
 import com.backend.repository.exception.ClaimNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -28,6 +32,10 @@ class ClaimsServiceTest {
 
     @InjectMocks
     ClaimsService claimsService;
+    @Mock
+    private PolicyRepository policyRepository;
+    @Mock
+    private UserRepository userRepository;
 
     @Test
     void save() {
@@ -36,10 +44,28 @@ class ClaimsServiceTest {
                 Claim.builder()
                         .description("Claim")
                         .amount(12000.0)
+                        .policy(Policy.builder()
+                                .id(1).build())
+                        .user(User.builder().id(1).build())
+                        .createdAt(LocalDate.now())
+                        .updatedAt(LocalDate.now())
+                        .status("ACTIVE")
                         .build()
         );
 
-        var result = claimsService.save(new ClaimRequestDTO("Claim", 10000.0));
+        when(policyRepository.findById(any(Integer.class))).thenReturn(
+                Optional.ofNullable(Policy.builder()
+                        .id(1)
+                        .build())
+        );
+
+        when(userRepository.findById(any(Integer.class))).thenReturn(
+                Optional.ofNullable(User.builder()
+                        .id(1)
+                        .build())
+        );
+
+        var result = claimsService.save(new ClaimRequestDTO("Claim", 10000.0,1,1));
 
         Assert.notNull(result, "Result must not be empty");
         Assert.hasLength(result.description(), "Description must have length");

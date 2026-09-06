@@ -9,9 +9,9 @@ POST http://localhost:8080/api/policy/save
 Content-Type: application/json
 
 {
-  "policyType": "Health Insurance",
-  "premium": 1500.75,
-  "coverageAmount": 500000.00,
+  "policyType": "Medical Insurance",
+  "premium": 1000,
+  "coverageAmount": 5500000.00,
   "startDate": "2026-09-05",
   "endDate": "2027-09-05",
   "status": "ACTIVE"
@@ -28,11 +28,11 @@ POST http://localhost:8080/api/policy/update/1
 Content-Type: application/json
 
 {
-  "policyType": "Travel Insurance",
-  "premium": 4500.75,
-  "coverageAmount": 1500000.00,
-  "startDate": "2026-09-05",
-  "endDate": "2027-09-05",
+  "policyType": "Health Insurance",
+  "premium": 1500,
+  "coverageAmount": 5000000.00,
+  "startDate": "2026-09-06",
+  "endDate": "2027-09-06",
   "status": "ACTIVE"
 }
 

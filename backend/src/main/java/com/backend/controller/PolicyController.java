@@ -1,6 +1,7 @@
 package com.backend.controller;
 
 import com.backend.model.Policy;
+import com.backend.model.dto.ClaimResponseDTO;
 import com.backend.model.dto.PolicyRequestDTO;
 import com.backend.model.dto.PolicyResponseDTO;
 import com.backend.service.PolicyService;
@@ -43,4 +44,10 @@ public class PolicyController {
     public ResponseEntity<String> deletePolicyByPolicyNumber(@PathVariable Integer id){
         return ResponseEntity.ok(policyService.deleteById(id));
     }
+
+    @GetMapping("/policy/{id}/claims")
+    public ResponseEntity<List<ClaimResponseDTO>> getClaimsByPolicyId(@PathVariable Integer id){
+        return ResponseEntity.ok(policyService.getClaimsByPolicyId(id));
+    }
+
 }

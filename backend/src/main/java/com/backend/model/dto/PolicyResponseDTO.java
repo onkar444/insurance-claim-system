@@ -9,5 +9,6 @@ public record PolicyResponseDTO(
         Double coverageAmount,
         LocalDate startDate,
         LocalDate endDate,
-        String status
+        String status,
+        Integer userId
 ) {}

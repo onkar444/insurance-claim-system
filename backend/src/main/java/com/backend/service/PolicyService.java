@@ -1,9 +1,14 @@
 package com.backend.service;
 
+import com.backend.model.Claim;
+import com.backend.model.dto.ClaimResponseDTO;
 import com.backend.model.dto.PolicyRequestDTO;
 import com.backend.model.dto.PolicyResponseDTO;
+import com.backend.repository.ClaimRepositroy;
 import com.backend.repository.PolicyRepository;
+import com.backend.repository.UserRepository;
 import com.backend.repository.exception.PolicyNotFoundException;
+import com.backend.repository.exception.UserNotFoundException;
 import com.backend.utility.MapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,10 +18,14 @@ import java.util.List;
 @Service
 public class PolicyService {
     private final PolicyRepository policyRepository;
+    private final ClaimRepositroy claimRepositroy;
+    private final UserRepository userRepository;
 
     @Autowired
-    public PolicyService(PolicyRepository policyRepository) {
+    public PolicyService(PolicyRepository policyRepository, ClaimRepositroy claimRepositroy, UserRepository userRepository) {
         this.policyRepository = policyRepository;
+        this.claimRepositroy = claimRepositroy;
+        this.userRepository = userRepository;
     }
 
     public List<PolicyResponseDTO> getAllPolicies() {
@@ -25,14 +34,11 @@ public class PolicyService {
                 .toList();
     }
 
-    public PolicyResponseDTO findById(Integer id) {
-        var policy = policyRepository.findById(id)
-                .orElseThrow(() -> new PolicyNotFoundException("Policy not found with id::" + id));
-
-        return MapperUtils.mapPolicyEntityToDto(policy);
-    }
-
     public PolicyResponseDTO updatePolicy(PolicyRequestDTO policy, Integer id) {
+
+        var userEntity = userRepository.findById(policy.userId())
+                .orElseThrow(()->new UserNotFoundException("User not found with Id::"+policy.userId()));
+
         var existingPolicy = policyRepository.findById(id)
                 .orElseThrow(() -> new PolicyNotFoundException("Policy not found with id::" + id));
 
@@ -41,14 +47,21 @@ public class PolicyService {
         existingPolicy.setPremium(policy.premium());
         existingPolicy.setEndDate(policy.endDate());
         existingPolicy.setStartDate(policy.startDate());
+        existingPolicy.setStatus(policy.status());
+        existingPolicy.setUser(userEntity);
 
-        policyRepository.save(existingPolicy);
+         var updatedPolicy = policyRepository.save(existingPolicy);
 
-        return MapperUtils.mapPolicyEntityToDto(existingPolicy);
+        return MapperUtils.mapPolicyEntityToDto(updatedPolicy);
     }
 
     public PolicyResponseDTO savePolicy(PolicyRequestDTO policy) {
-       var savedPolicy = policyRepository.save(MapperUtils.mapPolicyRequestDTOtoEntity(policy));
+        var userEntity = userRepository.findById(policy.userId())
+                .orElseThrow(()->new UserNotFoundException("User not found with Id::"+policy.userId()));
+
+        var policyEntity = MapperUtils.mapPolicyRequestDTOtoEntity(policy);
+        policyEntity.setUser(userEntity);
+        var savedPolicy = policyRepository.save(policyEntity);
 
         return MapperUtils.mapPolicyEntityToDto(savedPolicy);
     }
@@ -64,5 +77,12 @@ public class PolicyService {
 
 
         return MapperUtils.mapPolicyEntityToDto(policy);
+    }
+
+    public List<ClaimResponseDTO> getClaimsByPolicyId(Integer id) {
+        return claimRepositroy.findAllByPolicyId(id)
+                .stream()
+                .map(MapperUtils::mapClaimEntityToResponseDTO)
+                .toList();
     }
 }
