@@ -3,74 +3,79 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export function ClaimForm() {
     const { id } = useParams();
-    const [amount, setAmount] = useState('');
-    const [description, setDescription] = useState('');
-    const navigate = useNavigate();
+
+    const [amount, setAmount] = useState("");
+    const [description, setDescription] = useState("");
     const [errors, setErrors] = useState({});
+
+    const navigate = useNavigate();
 
     function handleErrors() {
         const newErrors = {};
 
-        //Description validation
+        // Description validation
         if (!description.trim()) {
-            newErrors.description = "Description is requried"
-        } else if (description.trim().length < 5) {
-            newErrors.description = "Description must be more than 5 characters"
+            newErrors.description = "Description is required";
+        } else if (description.trim().length <= 5) {
+            newErrors.description =
+                "Description must be more than 5 characters";
         }
 
-        //Amount validation
+        // Amount validation
         if (!amount) {
             newErrors.amount = "Amount is required";
-        }
-        else if (Number(amount) < 0) {
-            newErrors.amount = "Amount must be positive"
+        } else if (Number(amount) <= 0) {
+            newErrors.amount = "Amount must be positive";
         }
 
         setErrors(newErrors);
+
         return Object.keys(newErrors).length === 0;
     }
 
     async function handleSubmit(e) {
         e.preventDefault();
 
-        if (Number(amount) < 0) {
-            alert("Must be positive");
-            return;
-        }
-
-
-        //stop submission if validation fails
+        // Stop submission if validation fails
         if (!handleErrors()) {
             return;
         }
 
         const claim = {
-            "policyId": Number(id),
-            "amount": Number(amount),
-            "description": description,
+            policyId: Number(id),
+            amount: Number(amount),
+            description: description,
         };
 
         console.log("Input", claim);
 
         try {
-            const res = await fetch("http://localhost:8080/api/claim/save", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(claim)
+            const res = await fetch(
+                "http://localhost:8080/api/claim/save",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(claim),
+                }
+            );
 
-            });
-
-            if (!(res).ok) throw new Error(`Http Error: ${res.status}`);
+            if (!res.ok) {
+                throw new Error(`Http Error: ${res.status}`);
+            }
 
             const data = await res.json();
+
             console.log("Claim created:", data);
+
             setAmount("");
             setDescription("");
-            navigate(`/policies/${id}`)
+            setErrors({});
+
+            navigate(`/policies/${id}`);
         } catch (e) {
-            console.error("Erorr", e);
+            console.error("Error", e);
         }
     }
 
@@ -79,49 +84,70 @@ export function ClaimForm() {
             <h1>Claim Form</h1>
 
             <form onSubmit={handleSubmit}>
+                {/* Amount */}
                 <div>
-                    <label>Amount ::</label>
+                    <label htmlFor="amount">
+                        Amount ::
+                    </label>
+
                     <input
+                        id="amount"
                         type="text"
-                        placeholder="Enter Description..."
+                        placeholder="Enter Amount..."
                         value={amount}
                         onChange={(e) => {
-                            setAmount(e.target.value)
+                            setAmount(e.target.value);
 
                             setErrors({
                                 ...errors,
-                                amount: ""
-                            })
-                        }} />
-                    <p>
-                        {errors.amount && (
-                            <p style={{
-                                color: "red"
-                            }}>{errors.amount}</p>
-                        )}
+                                amount: "",
+                            });
+                        }}
+                    />
+
+                    <p style={{ color: "red" }}>
+                        {errors.amount}
                     </p>
                 </div>
+
+                {/* Description */}
                 <div>
-                    <label>Description ::</label>
+                    <label htmlFor="description">
+                        Description ::
+                    </label>
+
                     <input
+                        id="description"
                         type="text"
                         placeholder="Enter Description..."
                         value={description}
                         onChange={(e) => {
-                            setDescription(e.target.value)
+                            setDescription(e.target.value);
+
                             setErrors({
                                 ...errors,
-                                description: ""
-                            })
-                        }} />
-                    <p style={{
-                        color: "red"
-                    }}>{errors.description}</p>
-                </div>
-                <button type="submit">Submit</button>
-                <button type="button" onClick={() => navigate(-1)}>Back</button>
-            </form>
+                                description: "",
+                            });
+                        }}
+                    />
 
+                    <p style={{ color: "red" }}>
+                        {errors.description}
+                    </p>
+                </div>
+
+                {/* Buttons */}
+                <button type="submit">
+                    Submit
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                >
+                    Back
+                </button>
+            </form>
         </>
     );
 }
