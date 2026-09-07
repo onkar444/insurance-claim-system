@@ -6,6 +6,7 @@ import com.backend.model.dto.UserResponseDTO;
 import com.backend.repository.UserRepository;
 import com.backend.repository.exception.UserNotFoundException;
 import com.backend.utility.MapperUtils;
+import com.backend.utility.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,5 +57,10 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with Id::" + id));
 
         return MapperUtils.mapUserEntityToResponseDTO(existingUser);
+    }
+
+    public void registerUser(User user) {
+        var savedUser = userRepository.save(user);
+        UserMapper.entityToDTO(savedUser);
     }
 }

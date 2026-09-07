@@ -22,7 +22,7 @@ export function LoginPage({ onLoginSuccess }) {
                     placeholder="your@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)} />
-                <hr />
+                <br />
                 <div><label>Password</label></div>
                 <input
                     type="password"

@@ -20,6 +20,7 @@ public class MapperUtils {
                 .email(userRequestDTO.email())
                 .role(userRequestDTO.role())
                 .name(userRequestDTO.name())
+                .role("USER")
                 .build();
     }
 

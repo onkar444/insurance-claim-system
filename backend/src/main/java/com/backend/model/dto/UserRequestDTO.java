@@ -7,5 +7,5 @@ public record UserRequestDTO(
         @NotBlank String name,
         @Email String email,
         @NotBlank String password,
-        @NotBlank String role
+        String role
 ) {}

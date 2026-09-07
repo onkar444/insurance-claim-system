@@ -115,6 +115,7 @@ export function PolicyForm() {
                 <br />
                 <br />
                 <button type="submit">Update</button>
+                <button type="button" onClick={() => navigate(`/policies/${id}`)}>Cancel</button>
             </form>
         </div>
     )

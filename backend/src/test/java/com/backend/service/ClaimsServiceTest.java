@@ -65,7 +65,7 @@ class ClaimsServiceTest {
                         .build())
         );
 
-        var result = claimsService.save(new ClaimRequestDTO("Claim", 10000.0,1,1));
+        var result = claimsService.save(new ClaimRequestDTO("Claim", 10000.0,1,"ACTIVE"));
 
         Assert.notNull(result, "Result must not be empty");
         Assert.hasLength(result.description(), "Description must have length");
