@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JoinColumnOrFormula;
 
 import java.util.List;
 
@@ -15,17 +16,26 @@ import java.util.List;
 @Data
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
+    @Column(unique = true)
     private String email;
     private String password;
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private List<ROLE> roles;
 
     // One User can have multiple policies
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "customer")
     private List<Policy> policies;
 
-    @OneToMany(mappedBy = "user")
-    private List<Claim> claims;
+    //Claims where this user is the customer
+    @OneToMany(mappedBy = "customer")
+    private List<Claim> customerClaims;
+
+    //Claims where this user is the adjuster
+    @OneToMany(mappedBy = "adjuster")
+    private List<Claim> assignedClaims;
+
+    private boolean deleted;
 }

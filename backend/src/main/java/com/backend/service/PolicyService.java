@@ -1,6 +1,6 @@
 package com.backend.service;
 
-import com.backend.model.Claim;
+import com.backend.model.Policy;
 import com.backend.model.dto.ClaimResponseDTO;
 import com.backend.model.dto.PolicyRequestDTO;
 import com.backend.model.dto.PolicyResponseDTO;
@@ -9,7 +9,8 @@ import com.backend.repository.PolicyRepository;
 import com.backend.repository.UserRepository;
 import com.backend.repository.exception.PolicyNotFoundException;
 import com.backend.repository.exception.UserNotFoundException;
-import com.backend.utility.MapperUtils;
+import com.backend.utility.ClaimsMapper;
+import com.backend.utility.PolicyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,14 +31,15 @@ public class PolicyService {
 
     public List<PolicyResponseDTO> getAllPolicies() {
         return policyRepository.findAll().stream()
-                .map(MapperUtils::mapPolicyEntityToDto)
+                .filter(policy->!policy.isDeleted())
+                .map(PolicyMapper::entityToResponseDTO)
                 .toList();
     }
 
-    public PolicyResponseDTO updatePolicy(PolicyRequestDTO policy, Integer id) {
+    public PolicyResponseDTO updatePolicy(PolicyRequestDTO policy, Long id) {
 
-        var userEntity = userRepository.findById(policy.userId())
-                .orElseThrow(()->new UserNotFoundException("User not found with Id::"+policy.userId()));
+        var userEntity = userRepository.findById(policy.customerId())
+                .orElseThrow(()->new UserNotFoundException("User not found with Id::"+policy.customerId()));
 
         var existingPolicy = policyRepository.findById(id)
                 .orElseThrow(() -> new PolicyNotFoundException("Policy not found with id::" + id));
@@ -48,41 +50,42 @@ public class PolicyService {
         existingPolicy.setEndDate(policy.endDate());
         existingPolicy.setStartDate(policy.startDate());
         existingPolicy.setStatus(policy.status());
-        existingPolicy.setUser(userEntity);
+        existingPolicy.setCustomer(userEntity);
 
          var updatedPolicy = policyRepository.save(existingPolicy);
 
-        return MapperUtils.mapPolicyEntityToDto(updatedPolicy);
+        return PolicyMapper.entityToResponseDTO(updatedPolicy);
     }
 
     public PolicyResponseDTO savePolicy(PolicyRequestDTO policy) {
-        var userEntity = userRepository.findById(policy.userId())
-                .orElseThrow(()->new UserNotFoundException("User not found with Id::"+policy.userId()));
+        var userEntity = userRepository.findById(policy.customerId())
+                .orElseThrow(()->new UserNotFoundException("User not found with Id::"+policy.customerId()));
 
-        var policyEntity = MapperUtils.mapPolicyRequestDTOtoEntity(policy);
-        policyEntity.setUser(userEntity);
+        Policy policyEntity = PolicyMapper.requestDTOtoEntity(policy);
+        policyEntity.setCustomer(userEntity);
         var savedPolicy = policyRepository.save(policyEntity);
 
-        return MapperUtils.mapPolicyEntityToDto(savedPolicy);
+        return PolicyMapper.entityToResponseDTO(savedPolicy);
     }
 
-    public String deleteById(Integer id) {
-        policyRepository.deleteById(id);
+    public String deleteById(Long id) {
+        Policy policyEntity = policyRepository.findById(id)
+                        .orElseThrow(()-> new PolicyNotFoundException("Policy Not found with Id::"+id));
+        policyEntity.setDeleted(Boolean.TRUE);
+        policyRepository.save(policyEntity);
         return "Policy deleted successfully";
     }
 
-    public PolicyResponseDTO getById(Integer id) {
+    public PolicyResponseDTO getById(Long id) {
         var policy = policyRepository.findById(id)
                 .orElseThrow(() -> new PolicyNotFoundException("Policy not found with id:" + id));
 
-
-        return MapperUtils.mapPolicyEntityToDto(policy);
+        return PolicyMapper.entityToResponseDTO(policy);
     }
-
-    public List<ClaimResponseDTO> getClaimsByPolicyId(Integer id) {
+    public List<ClaimResponseDTO> getClaimsByPolicyId(Long id) {
         return claimRepositroy.findAllByPolicyId(id)
                 .stream()
-                .map(MapperUtils::mapClaimEntityToResponseDTO)
+                .map(ClaimsMapper::entityToResponseDTO)
                 .toList();
     }
 }

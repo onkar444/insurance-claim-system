@@ -17,8 +17,8 @@ import java.util.List;
 public class Policy {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String policyType;
     private Double premium;
     private Double coverageAmount;
@@ -30,8 +30,9 @@ public class Policy {
     @OneToMany(mappedBy = "policy")
     private List<Claim> claims;
 
-    // Many policies can have one user
+    // Many policies can have one customer
     @ManyToOne
-    private User user;
+    private User customer;
 
+    private boolean deleted;
 }

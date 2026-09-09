@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 
 public record PolicyRequestDTO(
-        @NotBlank Integer userId,
+        @NotBlank Long customerId,
         @NotBlank String policyType,
         @Positive Double premium,
         @Positive Double coverageAmount,

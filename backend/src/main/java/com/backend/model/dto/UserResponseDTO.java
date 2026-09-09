@@ -1,9 +1,14 @@
 package com.backend.model.dto;
 
+import com.backend.model.ROLE;
+import jakarta.annotation.Nullable;
+
+import java.util.List;
+
 public record UserResponseDTO(
-        Integer id,
+        Long id,
         String name,
-        String role,
+        @Nullable List<ROLE> role,
         String email
 ) {
 }

@@ -1,19 +1,24 @@
 package com.backend.service;
 
-import com.backend.repository.PolicyRepository;
-import com.backend.repository.UserRepository;
-import com.backend.repository.exception.ClaimNotFoundException;
+import com.backend.model.CLAIM_STATUS;
 import com.backend.model.Claim;
+import com.backend.model.ROLE;
+import com.backend.model.User;
 import com.backend.model.dto.ClaimRequestDTO;
 import com.backend.model.dto.ClaimResponseDTO;
 import com.backend.repository.ClaimRepositroy;
+import com.backend.repository.PolicyRepository;
+import com.backend.repository.UserRepository;
+import com.backend.repository.exception.ClaimNotFoundException;
 import com.backend.repository.exception.PolicyNotFoundException;
 import com.backend.repository.exception.UserNotFoundException;
-import com.backend.utility.MapperUtils;
+import com.backend.utility.ClaimsMapper;
+import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class ClaimsService {
@@ -30,37 +35,36 @@ public class ClaimsService {
 
     public ClaimResponseDTO save(ClaimRequestDTO claim) {
         var policyEntity = policyRepository.findById(claim.policyId())
-                .orElseThrow(()-> new PolicyNotFoundException("Policy not found with Id::"+claim.policyId()));
+                .orElseThrow(() -> new PolicyNotFoundException("Policy not found with Id::" + claim.policyId()));
 
-        var userEntity = userRepository.findById(policyEntity.getUser().getId())
-                .orElseThrow(()->new UserNotFoundException("User not found with Id::"+policyEntity.getUser().getId()));
+        var userEntity = userRepository.findById(policyEntity.getCustomer().getId())
+                .orElseThrow(() -> new UserNotFoundException("User not found with Id::" + policyEntity.getCustomer().getId()));
 
-        var claimEntity = MapperUtils.mapClaimRequestDTOtoEntity(claim);
+        var claimEntity = ClaimsMapper.requestDTOtoEntity(claim);
 
         claimEntity.setPolicy(policyEntity);
-        claimEntity.setUser(userEntity);
-        if(Objects.isNull(claimEntity.getStatus())){
-            claimEntity.setStatus("ACTIVE");
-        }
+        claimEntity.setCustomer(userEntity);
+        claimEntity.setStatus(CLAIM_STATUS.SUBMITTED);
 
-        var savedClaim =  claimsRepository.save(claimEntity);
-        return MapperUtils.mapClaimEntityToResponseDTO(savedClaim);
+        var savedClaim = claimsRepository.save(claimEntity);
+        return ClaimsMapper.entityToResponseDTO(savedClaim);
     }
 
-    public ClaimResponseDTO findById(Integer id) {
+    public ClaimResponseDTO findById(Long id) {
         var claim = claimsRepository.findById(id).
-                orElseThrow(() -> new ClaimNotFoundException("Cannot find policy with Id::" + id));
+                orElseThrow(() -> new ClaimNotFoundException("Cannot find claim with Id::" + id));
 
-        return MapperUtils.mapClaimEntityToResponseDTO(claim);
+        return ClaimsMapper.entityToResponseDTO(claim);
     }
 
     public List<ClaimResponseDTO> getAllClaims() {
         return claimsRepository.findAll().stream()
-                .map(MapperUtils::mapClaimEntityToResponseDTO)
+                .filter(claim -> !claim.isDeleted())
+                .map(ClaimsMapper::entityToResponseDTO)
                 .toList();
     }
 
-    public ClaimResponseDTO updateClaim(ClaimRequestDTO claim, Integer id) {
+    public ClaimResponseDTO updateClaim(ClaimRequestDTO claim, Long id) {
         var existingClaim = claimsRepository.findById(id)
                 .orElseThrow(() -> new ClaimNotFoundException("Claim not found with Id::" + id));
 
@@ -68,14 +72,53 @@ public class ClaimsService {
         existingClaim.setDescription(claim.description());
 
         var savedClaim = claimsRepository.save(existingClaim);
-        return MapperUtils.mapClaimEntityToResponseDTO(savedClaim);
+        return ClaimsMapper.entityToResponseDTO(savedClaim);
     }
 
-    public String deleteById(Integer id) {
+    public String deleteById(Long id) {
         Claim existingClaim = claimsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Claim not found with Id::" + id));
-        existingClaim.setStatus("DELETED");
+        existingClaim.setDeleted(Boolean.TRUE);
         claimsRepository.save(existingClaim);
         return "Claim deleted successfully";
+    }
+
+    public List<ClaimResponseDTO> getAllAssignedClaims(Authentication httpRequest) {
+        Long currentUserId = getCurrentUserId(httpRequest);
+        return claimsRepository.findByAdjusterId(currentUserId)
+                .stream()
+                .map(ClaimsMapper::entityToResponseDTO)
+                .toList();
+    }
+
+    private Long getCurrentUserId(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        assert userDetails != null;
+        var user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(()-> new UserNotFoundException("User not found exception"));
+        return user.getId();
+    }
+
+    @Transactional
+    public ClaimResponseDTO assignClaim(Long adjusterId, Long claimId) {
+        Claim claim = claimsRepository.findById(claimId)
+                .orElseThrow(()-> new ClaimNotFoundException("Claim not found with Id::"+claimId));
+
+        User adjuster = userRepository.findById(adjusterId)
+                .orElseThrow(()->  new UserNotFoundException("Adjuster not found with Id::"+adjusterId));
+
+
+        if(!adjuster.getRoles().contains(ROLE.CLAIM_ADJUSTER)){
+            throw new IllegalArgumentException("User is not claim adjuster");
+        }
+
+        if(!claim.getStatus().equals(CLAIM_STATUS.SUBMITTED)){
+            throw new IllegalArgumentException("Only submitted claim can be adjusted");
+        }
+
+        claim.setAdjuster(adjuster);
+        claim.setStatus(CLAIM_STATUS.ASSIGNED);
+
+        return ClaimsMapper.entityToResponseDTO(claimsRepository.save(claim));
     }
 }

@@ -38,7 +38,7 @@ public class AuthController {
                 .email(userRequestDTO.email())
                 .name(userRequestDTO.name())
                 .password(passwordEncoder.encode(userRequestDTO.password()))
-                .role("USER")
+                .roles(userRequestDTO.roles())
                 .build();
 
         userService.registerUser(user);
@@ -52,6 +52,6 @@ public class AuthController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtUtil.generateToken(userRequestDTO.email());
-        return ResponseEntity.ok("Token :: "+token);
+        return ResponseEntity.ok(token);
     }
 }

@@ -6,7 +6,8 @@ import jakarta.validation.constraints.Positive;
 public record ClaimRequestDTO(
         @NotBlank String description,
         @Positive Double amount,
-        @NotBlank Integer policyId,
+        @NotBlank Long policyId,
+        @NotBlank Long customerId,
         String status
 ) {
 }

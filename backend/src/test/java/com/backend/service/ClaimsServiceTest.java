@@ -1,5 +1,6 @@
 package com.backend.service;
 
+import com.backend.model.CLAIM_STATUS;
 import com.backend.model.Claim;
 import com.backend.model.Policy;
 import com.backend.model.User;
@@ -16,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.Assert;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,27 +46,27 @@ class ClaimsServiceTest {
                         .description("Claim")
                         .amount(12000.0)
                         .policy(Policy.builder()
-                                .id(1).build())
-                        .user(User.builder().id(1).build())
-                        .createdAt(LocalDate.now())
-                        .updatedAt(LocalDate.now())
-                        .status("ACTIVE")
+                                .id(1L).build())
+                        .customer(User.builder().id(1L).build())
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .status(CLAIM_STATUS.SUBMITTED)
                         .build()
         );
 
-        when(policyRepository.findById(any(Integer.class))).thenReturn(
+        when(policyRepository.findById(any(Long.class))).thenReturn(
                 Optional.ofNullable(Policy.builder()
-                        .id(1)
+                        .id(1L)
                         .build())
         );
 
-        when(userRepository.findById(any(Integer.class))).thenReturn(
+        when(userRepository.findById(any(Long.class))).thenReturn(
                 Optional.ofNullable(User.builder()
-                        .id(1)
+                        .id(1L)
                         .build())
         );
 
-        var result = claimsService.save(new ClaimRequestDTO("Claim", 10000.0,1,"ACTIVE"));
+        var result = claimsService.save(new ClaimRequestDTO("Claim", 10000.0,1L,"ACTIVE"));
 
         Assert.notNull(result, "Result must not be empty");
         Assert.hasLength(result.description(), "Description must have length");
@@ -75,27 +76,27 @@ class ClaimsServiceTest {
     @Test
     void findById() {
         var claimRequest = Claim.builder()
-                .id(10)
+                .id(10L)
                 .description("claim")
                 .amount(10000.0)
-                .createdAt(LocalDate.now())
-                .updatedAt(LocalDate.now())
-                .status("ACCEPTED")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .status(CLAIM_STATUS.SUBMITTED)
                 .build();
-        when(claimRepositroy.findById(10)).thenReturn(Optional.ofNullable(claimRequest));
+        when(claimRepositroy.findById(10L)).thenReturn(Optional.ofNullable(claimRequest));
 
-        var result = claimsService.findById(10);
+        var result = claimsService.findById(10L);
 
         Assert.notNull(result, "Result must not be empty");
-        Assert.isTrue(result.id().equals(10), "Id must match");
+        Assert.isTrue(result.id().equals(10L), "Id must match");
     }
 
     @Test
     void findByIdNotFound() {
 
-        when(claimRepositroy.findById(100)).thenThrow(new ClaimNotFoundException("Claim not found"));
+        when(claimRepositroy.findById(100L)).thenThrow(new ClaimNotFoundException("Claim not found"));
         Assertions.assertThrows(ClaimNotFoundException.class,
-                () -> claimsService.findById(100), "Should throw exception");
+                () -> claimsService.findById(100L), "Should throw exception");
     }
 
     @Test

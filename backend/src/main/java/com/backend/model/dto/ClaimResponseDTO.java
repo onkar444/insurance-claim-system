@@ -1,14 +1,17 @@
 package com.backend.model.dto;
 
-import java.time.LocalDate;
+import com.backend.model.CLAIM_STATUS;
+
+import java.time.LocalDateTime;
 
 public record ClaimResponseDTO(
-        Integer id,
-        Integer userId,
-        Integer policyId,
+        Long id,
+        Long customerId,
+        Long adjusterId,
+        Long policyId,
         String description,
         Double amount,
-        String status,
-        LocalDate createdAt,
-        LocalDate updatedAt
+        CLAIM_STATUS status,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {}
