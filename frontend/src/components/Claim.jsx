@@ -32,7 +32,8 @@ export function Claim({ claim, onDelete }) {
             margin: "10px"
         }}>
             Id:{claim.id} <br />
-            userId:{claim.userId} <br />
+            customerId:{claim.customerId} <br />
+            adjusterId:{claim.adjusterId} <br />
             policyId: {claim.policyId} <br />
             description: {claim.description} <br />
             amount: {claim.amount}<br />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"
+import { getPolicies } from "../api/api";
 
 export function PolicyDetails() {
 
@@ -14,9 +15,8 @@ export function PolicyDetails() {
         async function fetchPolicy() {
             try {
                 setIsLoading(true);
-                const res = await fetch(`http://localhost:8080/api/policy/${id}`);
-                const data = await res.json();
-                setPolicy(data);
+                const policies = await getPolicies();
+                setPolicy(policies);
             } catch (err) {
                 setError(err)
             } finally {
@@ -39,6 +39,7 @@ export function PolicyDetails() {
         }}>
             <h1>Policy Details</h1>
             Policy Id: {id} <br />
+            Customer Id: {policy.customerId} <br />
             Policy Type: {policy.policyType}<br />
             Premium: {policy.premium}<br />
             Coverage Amount: {policy.coverageAmount}<br />
@@ -53,3 +54,12 @@ export function PolicyDetails() {
         </div>
     )
 }
+
+//  "id": 1,
+//         "customerId": 2,
+//         "policyType": "Life Insurance",
+//         "premium": 1500000.0,
+//         "coverageAmount": 1500.75,
+//         "startDate": "2026-09-05",
+//         "endDate": "2027-09-05",
+//         "status": null

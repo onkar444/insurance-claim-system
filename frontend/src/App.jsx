@@ -8,30 +8,81 @@ import { PolicyDetails } from "./pages/PolicyDetails";
 import { ClaimsPage } from "./pages/ClaimsPage";
 import { ClaimForm } from "./components/ClaimForm";
 import { PolicyForm } from "./components/PolicyForm";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import './App.css';
+import { SignIn } from "./pages/SignIn";
 
 function App() {
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => localStorage.getItem("token") !== null
+  );
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+  }
 
   return (
     <>
       <h1>Insurance Claim System</h1>
       <BrowserRouter>
-        {isLoggedIn ? (
-          <Routes>
-            <Route path="/" element={<Dashboard handleLogout={() => setIsLoggedIn(false)} />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/policies" element={<PolicyList handleLogout={() => setIsLoggedIn(false)} />} />
-            <Route path="/policies/:id" element={<PolicyDetails />} />
-            <Route path="/policy/:id/claims" element={<ClaimsPage />} />
-            <Route path="/policy/:id/submitClaims" element={<ClaimForm />} />
-            <Route path="/policy/:id/update" element={<PolicyForm />} />
-          </Routes>
-        ) :
-          <LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />
-        }
+        <Routes>
+          <Route path="/"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <Dashboard handleLogout={handleLogout} />
+              </ProtectedRoute>
+            } />
 
+          <Route path="/profile" element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <ProfilePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/policies"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <PolicyList />
+              </ProtectedRoute>
+            } />
+          <Route path="/policies/:id"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <PolicyDetails />
+              </ProtectedRoute>
+            } />
+
+          <Route path="/policies/:id/claims"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <ClaimsPage />
+              </ProtectedRoute>
+            } />
+
+          <Route path="/policies/:id/submitClaims"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <ClaimForm />
+              </ProtectedRoute>
+            } />
+
+          <Route path="/policy/:id/update"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <PolicyForm />
+              </ProtectedRoute>
+            } />
+
+          <Route path="/login"
+            element={
+              <LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />
+            } />
+
+          <Route
+            path="/sign-in" element={<SignIn />} />
+        </Routes>
       </BrowserRouter>
     </>
   )

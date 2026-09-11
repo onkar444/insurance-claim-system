@@ -7,6 +7,7 @@ export function PolicyList() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const token = localStorage.getItem("token");
 
     useEffect(() => {
 
@@ -14,7 +15,11 @@ export function PolicyList() {
             try {
 
                 setIsLoading(true);
-                const response = await fetch("http://localhost:8080/api/policies");
+                const response = await fetch("http://localhost:8080/api/policies", {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
                 console.log("response", response);
                 const data = await response.json();
                 console.log(data)
