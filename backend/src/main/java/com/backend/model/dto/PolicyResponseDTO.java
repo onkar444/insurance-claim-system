@@ -1,5 +1,7 @@
 package com.backend.model.dto;
 
+import com.backend.model.POLICY_STATUS;
+
 import java.time.LocalDate;
 
 public record PolicyResponseDTO(
@@ -10,5 +12,5 @@ public record PolicyResponseDTO(
         Double coverageAmount,
         LocalDate startDate,
         LocalDate endDate,
-        String status
+        POLICY_STATUS status
 ) {}

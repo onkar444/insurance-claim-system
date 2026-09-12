@@ -1,4 +1,4 @@
-package com.backend.repository.exception;
+package com.backend.exception;
 
 public class PolicyNotFoundException extends RuntimeException{
     public PolicyNotFoundException(String message){

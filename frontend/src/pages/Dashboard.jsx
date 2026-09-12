@@ -9,6 +9,7 @@ export function Dashboard({ handleLogout }) {
             <nav>
                 <button onClick={() => navigate(`/policies`)}>Policies</button>
                 <button onClick={() => navigate("/profile")}>Profile</button>
+                <button onClick={() => navigate("/user/all")}>User List</button>
             </nav>
             <div>
                 <button onClick={handleLogout}>Logout</button>

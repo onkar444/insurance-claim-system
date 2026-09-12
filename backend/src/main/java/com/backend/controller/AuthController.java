@@ -1,9 +1,12 @@
 package com.backend.controller;
 
 import com.backend.model.User;
+import com.backend.model.dto.LoginDTO;
 import com.backend.model.dto.UserRequestDTO;
 import com.backend.security.JwtUtil;
 import com.backend.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +26,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
 
 
     public AuthController(JwtUtil jwtUtil, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserService userService) {
@@ -34,6 +38,7 @@ public class AuthController {
 
     @PostMapping("/auth/register")
     public ResponseEntity<?> registerUser (@RequestBody UserRequestDTO userRequestDTO){
+        LOGGER.info("Executing registerUser()");
         User user = User.builder()
                 .email(userRequestDTO.email())
                 .name(userRequestDTO.name())
@@ -46,12 +51,13 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> loginUser (@RequestBody UserRequestDTO userRequestDTO){
+    public ResponseEntity<?> loginUser (@RequestBody LoginDTO loginDTO){
+        LOGGER.info("Executing loginUser()");
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userRequestDTO.email(), userRequestDTO.password())
+                new UsernamePasswordAuthenticationToken(loginDTO.email(), loginDTO.password())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtUtil.generateToken(userRequestDTO.email());
+        String token = jwtUtil.generateToken(loginDTO.email());
         return ResponseEntity.ok(token);
     }
 }

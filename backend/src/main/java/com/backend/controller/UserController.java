@@ -7,6 +7,7 @@ import com.backend.service.UserService;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,4 +52,9 @@ public class UserController {
         return ResponseEntity.ok(userService.deleteById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @GetMapping("/user/me")
+    public ResponseEntity<UserResponseDTO> getUserMe(Authentication authentication){
+        return ResponseEntity.ok(userService.getUserMe(authentication));
+    }
 }

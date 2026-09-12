@@ -8,7 +8,7 @@ import com.backend.model.dto.ClaimRequestDTO;
 import com.backend.repository.ClaimRepositroy;
 import com.backend.repository.PolicyRepository;
 import com.backend.repository.UserRepository;
-import com.backend.repository.exception.ClaimNotFoundException;
+import com.backend.exception.ClaimNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +66,7 @@ class ClaimsServiceTest {
                         .build())
         );
 
-        var result = claimsService.save(new ClaimRequestDTO("Claim", 10000.0,1L,"ACTIVE"));
+        var result = claimsService.save(new ClaimRequestDTO("Claim", 10000.0,1L,1L,"ACTIVE"));
 
         Assert.notNull(result, "Result must not be empty");
         Assert.hasLength(result.description(), "Description must have length");

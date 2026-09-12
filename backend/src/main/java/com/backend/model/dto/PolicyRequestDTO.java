@@ -1,5 +1,6 @@
 package com.backend.model.dto;
 
+import com.backend.model.POLICY_STATUS;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -13,5 +14,5 @@ public record PolicyRequestDTO(
         @Positive Double coverageAmount,
         @NotNull LocalDate startDate,
         @NotNull LocalDate endDate,
-        String status
+        @NotBlank POLICY_STATUS status
 ) {}

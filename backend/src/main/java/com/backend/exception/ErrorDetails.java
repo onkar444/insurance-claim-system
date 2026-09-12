@@ -1,4 +1,4 @@
-package com.backend.repository.exception;
+package com.backend.exception;
 
 public record ErrorDetails(int status, String message) {
 }

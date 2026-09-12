@@ -24,7 +24,7 @@ public class Policy {
     private Double coverageAmount;
     private LocalDate startDate;
     private LocalDate endDate;
-    private String status;
+    private POLICY_STATUS status;
 
     // One Policy can have multiple claims
     @OneToMany(mappedBy = "policy")

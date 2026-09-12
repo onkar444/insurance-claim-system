@@ -2,9 +2,8 @@ package com.backend.security;
 
 import com.backend.model.User;
 import com.backend.repository.UserRepository;
-import com.backend.repository.exception.UserNotFoundException;
+import com.backend.exception.UserNotFoundException;
 import org.jspecify.annotations.NonNull;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
