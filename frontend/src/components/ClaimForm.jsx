@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { saveClaim } from "../api/api";
 
 export function ClaimForm() {
     const { id } = useParams();
@@ -50,29 +51,13 @@ export function ClaimForm() {
         console.log("Input", claim);
 
         try {
-            const res = await fetch(
-                "http://localhost:8080/api/claim/save",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(claim),
-                }
-            );
-
-            if (!res.ok) {
-                throw new Error(`Http Error: ${res.status}`);
-            }
-
-            const data = await res.json();
+            const data = await saveClaim(claim);
 
             console.log("Claim created:", data);
 
             setAmount("");
             setDescription("");
             setErrors({});
-
             navigate(`/policies/${id}`);
         } catch (e) {
             console.error("Error", e);

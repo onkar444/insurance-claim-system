@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom";
+import { getPolicyById, updatePolicy } from "../api/api";
 
 export function PolicyForm() {
 
@@ -22,13 +23,12 @@ export function PolicyForm() {
         async function fetchPolicy() {
             try {
                 setIsLoading(true);
-                const res = await fetch(`http://localhost:8080/api/policy/${id}`);
-
-                const data = await res.json();
+                const data = await getPolicyById(id);
+                console.log("Data to be updated", data);
                 setPolicy(data);
             } catch (err) {
                 setError(err);
-                alert(err);
+                console.error(err.message);
             }
             finally { setIsLoading(false) }
         }
@@ -46,25 +46,15 @@ export function PolicyForm() {
         try {
             setIsUpdating(true);
             setError(null);
-            const res = await fetch(`http://localhost:8080/api/policy/update/${id}`, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(policy)
-            });
-
-            if (!res.ok) throw new Error("Error updating policy");
-
-            navigate(`/policies/${id}`);
+            await updatePolicy(policy);
+            alert("Policy Updated succesfully!")
+            navigate(`/policy/${id}`);
 
         } catch (err) {
             setError(err);
         } finally {
             setIsUpdating(false);
         }
-
-
     }
 
     function handleChange(e) {
@@ -115,7 +105,7 @@ export function PolicyForm() {
                 <br />
                 <br />
                 <button type="submit">Update</button>
-                <button type="button" onClick={() => navigate(`/policies/${id}`)}>Cancel</button>
+                <button type="button" onClick={() => navigate(`/policy/${id}`)}>Cancel</button>
             </form>
         </div>
     )

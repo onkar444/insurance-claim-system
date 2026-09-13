@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../api/api";
 
 export function SignIn() {
 
@@ -50,26 +51,13 @@ export function SignIn() {
             return;
         }
 
-
         const inputData = {
             name, email, password, roles
         };
 
-
         try {
-            const response = await fetch("http://localhost:8080/api/auth/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(inputData)
-            })
-
-            if (!response.ok) {
-                throw new Error("Register failed");
-            }
-
-            const data = await response.text();
+            console.log("inputData", inputData)
+            const data = await registerUser(inputData);
             console.log("Registered User", data);
             alert("Registered User");
             navigate("/login");

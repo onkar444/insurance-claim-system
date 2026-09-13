@@ -1,7 +1,10 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../components/AuthContext";
+import { perfromLogin } from "../api/api";
 
-export function LoginPage({ onLoginSuccess }) {
+export function LoginPage() {
+    const { login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
@@ -33,26 +36,9 @@ export function LoginPage({ onLoginSuccess }) {
 
         try {
 
-            const response = await fetch("http://localhost:8080/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error("Invalid username or password");
-            }
-
-            const data = await response.text();
-            localStorage.setItem("token", data);
+            const data = await perfromLogin(email, password);
             console.log("Login Repsonse", data);
-
-            onLoginSuccess();
+            login(data);
             navigate("/");
 
         } catch (err) {

@@ -1,19 +1,11 @@
+import { deleteClaimById } from "../api/api";
+
 export function Claim({ claim, onDelete }) {
 
     async function handleDelete() {
 
         try {
-            const res = await fetch(`http://localhost:8080/api/claim/delete/${claim.id}`, {
-                method: "DELETE",
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!res.ok) {
-                throw new Error(`Error while deleting claim: ${res.status}`);
-            }
-
+            deleteClaimById(claim.id);
             //notify parent on removal
             onDelete(claim.id);
         }

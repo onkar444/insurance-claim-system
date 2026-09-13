@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"
-import { getPolicies } from "../api/api";
+import { getPolicyById } from "../api/api";
 
 export function PolicyDetails() {
 
@@ -15,8 +15,8 @@ export function PolicyDetails() {
         async function fetchPolicy() {
             try {
                 setIsLoading(true);
-                const policies = await getPolicies();
-                setPolicy(policies);
+                const data = await getPolicyById(id);
+                setPolicy(data);
             } catch (err) {
                 setError(err)
             } finally {
@@ -47,19 +47,10 @@ export function PolicyDetails() {
             End Date: {policy.endDate}<br />
             Status : {policy.status}<br />
             <button onClick={() => navigate(`/policy/${id}/claims`)}>Claims</button>
-            <button onClick={() => navigate(`/policy/${id}/submitClaims`)}>Submit Claim</button>
+            <button onClick={() => navigate(`/policy/${id}/submitclaim`)}>Submit Claim</button>
             <button onClick={() => navigate(`/policy/${id}/update`)}>Update</button>
             <button onClick={() => navigate(`/policies`)}>Back</button>
 
         </div>
     )
 }
-
-//  "id": 1,
-//         "customerId": 2,
-//         "policyType": "Life Insurance",
-//         "premium": 1500000.0,
-//         "coverageAmount": 1500.75,
-//         "startDate": "2026-09-05",
-//         "endDate": "2027-09-05",
-//         "status": null

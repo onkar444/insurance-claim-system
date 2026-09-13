@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"
 import { Claim } from "../components/Claim";
+import { getClaims } from "../api/api";
 
 export function ClaimsPage() {
 
@@ -19,8 +20,9 @@ export function ClaimsPage() {
         async function fetchClaims() {
             try {
                 setIsLoading(true);
-                const res = await fetch(`http://localhost:8080/api/policy/${id}/claims`);
-                const data = await res.json();
+                const data = await getClaims(id);
+                console.log(data);
+
                 setClaims(data);
             }
             catch (e) {
@@ -52,7 +54,7 @@ export function ClaimsPage() {
                     <Claim key={claim.id} claim={claim} onDelete={handleRemovedId} />
                 ))
             }
-            <button onClick={() => navigate(`/policies/${id}`)}>Back</button>
+            <button onClick={() => navigate(`/policy/${id}`)}>Back</button>
         </>
     )
 }

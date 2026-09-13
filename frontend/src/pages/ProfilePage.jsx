@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
+import { getUserMe } from "../api/api.js"
 
 export function ProfilePage() {
 
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const token = localStorage.getItem("token");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -15,24 +15,12 @@ export function ProfilePage() {
 
             try {
                 setIsLoading(true);
-                const response = await fetch("http://localhost:8080/api/user/me", {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error("Erorr loading profile");
-                }
-                const data = await response.json();
+                const data = await getUserMe();
                 setUser(data);
-                console.log(data);
             } catch (err) {
-                console.error(err);
+                console.error("status:", err.status);
                 setError(err);
-                alert(err.message);
-            }
-            finally {
+            } finally {
                 setIsLoading(false);
             }
         };
@@ -49,17 +37,22 @@ export function ProfilePage() {
     }
 
     return (
-        <>
-            <div>
-
-                <h1>Profile Page</h1>
+        <div>
+            <h1>Profile Page</h1>
+            <div style={{
+                border: "1px solid black",
+                padding: "10px",
+                fontSize: "15px",
+                fontFamily: "monospace",
+                margin: "10px"
+            }}>
                 Id:{user.id} <br />
                 Name:{user.name} <br />
                 Email:{user.email} <br />
                 Roles: {user.role.map(r => r + " ")}
             </div>
             <button onClick={() => navigate("/")}>Back</button>
-        </>
+        </div>
     )
 }
 
